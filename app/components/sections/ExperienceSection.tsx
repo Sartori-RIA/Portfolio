@@ -2,6 +2,7 @@ import * as UI from "@/app/components/ui";
 
 type ExperienceItem = {
   role: string;
+  companyLink: string;
   company: string;
   period: string;
   location?: string;
@@ -9,13 +10,13 @@ type ExperienceItem = {
 };
 
 
-function ExperienceCard({role, company, period, location, bullets}: ExperienceItem) {
+function ExperienceCard({role, company, companyLink, period, location, bullets}: ExperienceItem) {
   return (
     <UI.Card>
       <UI.CardContent>
         <h3 className="text-xl font-semibold">{role}</h3>
         <p className="text-gray-400">
-          {company}{location ? ` · ${location}` : ""} · {period}
+          <UI.Link href={companyLink} text={company}></UI.Link>{location ? ` · ${location}` : ""} · {period}
         </p>
         <ul className="mt-3 list-disc list-inside text-gray-300 space-y-1">
           {bullets.map((item, idx) => (
@@ -32,6 +33,7 @@ export function ExperienceSection() {
     <UI.Section title="Professional Experience">
       <ExperienceCard
         role="Senior Backend Ruby Developer"
+        companyLink={"https://www.linkedin.com/company/ballast-lane-applications/"}
         company="Ballast Lane Applications"
         location="Remote · USA"
         period="Sep 2024 – Present"
@@ -47,6 +49,7 @@ export function ExperienceSection() {
 
       <ExperienceCard
         role="Senior Software Engineer"
+        companyLink={"https://www.linkedin.com/company/fullstack-labs/"}
         company="FullStack Labs (NoFraud)"
         location="Remote · USA"
         period="Nov 2021 – Mar 2024"
@@ -61,6 +64,7 @@ export function ExperienceSection() {
 
       <ExperienceCard
         role="Senior Software Engineer / Tech Lead"
+        companyLink={"https://www.linkedin.com/company/twygoficial/"}
         company="Grupo EUAX"
         location="Remote · Brazil"
         period="Jun 2021 – Nov 2021"
@@ -75,6 +79,7 @@ export function ExperienceSection() {
       <ExperienceCard
         role="Senior Software Engineer (Ruby on Rails)"
         company="Grupo EUAX"
+        companyLink={"https://www.linkedin.com/company/twygoficial/"}
         location="Remote · Brazil"
         period="Dec 2020 – Jun 2021"
         bullets={[
@@ -85,6 +90,7 @@ export function ExperienceSection() {
       />
 
       <ExperienceCard
+        companyLink={"https://www.linkedin.com/company/letscomvc/"}
         role="Fullstack Developer"
         company="Lets"
         location="Hybrid · Brazil"
@@ -98,6 +104,7 @@ export function ExperienceSection() {
 
       <ExperienceCard
         role="Android Developer"
+        companyLink={"https://www.linkedin.com/company/stapemusic/"}
         company="Stape Music"
         location="Remote"
         period="Sep 2018 – Apr 2019"
@@ -110,6 +117,7 @@ export function ExperienceSection() {
 
       <ExperienceCard
         role="Fullstack Developer"
+        companyLink={"https://www.linkedin.com/company/teorema-sistemas/"}
         company="Teorema Sistemas"
         location="Guarapuava · Brazil"
         period="Jun 2017 – Sep 2018"
