@@ -62,7 +62,7 @@ export function ExperienceSection() {
       <ExperienceCard
         role="Senior Software Engineer / Tech Lead"
         company="Grupo EUAX"
-        location="Remote"
+        location="Remote · Brazil"
         period="Jun 2021 – Nov 2021"
         bullets={[
           "Led development of Twygo, a 10+ year online education platform",
@@ -75,7 +75,7 @@ export function ExperienceSection() {
       <ExperienceCard
         role="Senior Software Engineer (Ruby on Rails)"
         company="Grupo EUAX"
-        location="Remote"
+        location="Remote · Brazil"
         period="Dec 2020 – Jun 2021"
         bullets={[
           "Developed and maintained features for the Twygo platform",
