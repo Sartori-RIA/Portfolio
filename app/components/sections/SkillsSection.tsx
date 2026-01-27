@@ -10,49 +10,29 @@ function Title({children}: { children: ReactNode }) {
   return (<h3 className="mb-3 text-lg font-semibold text-gray-200">{children}</h3>)
 }
 
+function SkillCard({skills, title}: { skills: string[], title: string }) {
+  return (<div>
+    <Title>{title}</Title>
+    <div className="flex flex-wrap gap-3">
+      {skills.map((skill) => (
+        <Skill skill={skill} key={skill}/>
+      ))}
+    </div>
+  </div>)
+}
+
 export function SkillsSection() {
-  const backend = ["Ruby on Rails", "Sidekiq", "REST APIs", "PostgreSQL", "MySQL", "Docker", "Multi-tenant Systems"]
+  const backend = ["Ruby on Rails", "Sidekiq", "REST APIs", "PostgreSQL", "MySQL", "Docker", "Multi-tenant Systems", "Java", "Kotlin", "Spring Boot", "NodeJS"]
   const frontend = ["React", "Next.js", "TypeScript", "Tailwind CSS", "Angular", "NgRX", "Angular Material", "Vue", "Vuex", "Vuetify"]
-  const testing = ["RSpec", "Test Coverage", "Brakeman", "CI/CD"]
+  const testing = ["RSpec", "Test Coverage", "Brakeman", "CI/CD", "Rubocop", "Simplecov"]
   const architecture = ["Legacy Systems", "Refactoring", "Scalability", "Mentorship", "Code Reviews", "AI Integrations"]
 
   return (<Section title="Core Skills">
     <div className="space-y-8">
-      <div>
-        <Title>Backend</Title>
-        <div className="flex flex-wrap gap-3">
-          {backend.map((skill) => (
-            <Skill key={skill} skill={skill}/>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <Title>Frontend</Title>
-        <div className="flex flex-wrap gap-3">
-          {frontend.map((skill) => (
-            <Skill skill={skill} key={skill}/>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <Title>Testing & Quality</Title>
-        <div className="flex flex-wrap gap-3">
-          {testing.map((skill) => (
-            <Skill skill={skill} key={skill}/>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <Title>Architecture & Practices</Title>
-        <div className="flex flex-wrap gap-3">
-          {architecture.map((skill) => (
-            <Skill skill={skill} key={skill}/>
-          ))}
-        </div>
-      </div>
+      <SkillCard skills={backend} title={"Backend"}/>
+      <SkillCard skills={frontend} title={"Frontend"}/>
+      <SkillCard skills={testing} title={"Testing & Quality"}/>
+      <SkillCard skills={architecture} title={"Architecture & Practices"}/>
     </div>
   </Section>)
 }
