@@ -40,7 +40,7 @@ export function ExperienceSection() {
         bullets={[
           "Working on Tripleseat, a large-scale event and restaurant management platform",
           "Developing new features, improving performance, and maintaining complex integrations",
-          "Primary owner of Gemini AI prompt workflows",
+          "Applied prompt engineering and generative AI techniques to build reliable workflows that automated tasks, improved information retrieval, and accelerated development processes.",
           "Contributing to Inspect Point, a 10+ year multi-tenant legacy system",
           "Designing REST APIs, addressing technical debt, and improving system reliability",
         ]}
