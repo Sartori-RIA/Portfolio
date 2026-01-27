@@ -23,14 +23,16 @@ function SkillCard({skills, title}: { skills: string[], title: string }) {
 
 export function SkillsSection() {
   const backend = ["Ruby on Rails", "Sidekiq", "REST APIs", "PostgreSQL", "MySQL", "Docker", "Multi-tenant Systems", "Java", "Kotlin", "Spring Boot", "NodeJS"]
-  const frontend = ["React", "Next.js", "TypeScript", "Tailwind CSS", "Angular", "NgRX", "Angular Material", "Vue", "Vuex", "Vuetify"]
+  const frontend = ["React","Redux", "Next.js", "TypeScript", "Tailwind CSS", "Angular", "NgRx", "Angular Material", "Vue", "Vuex", "Vuetify", "JQuery", "RxJS"]
   const testing = ["RSpec", "Test Coverage", "Brakeman", "CI/CD", "Rubocop", "Simplecov"]
   const architecture = ["Legacy Systems", "Refactoring", "Scalability", "Mentorship", "Code Reviews", "AI Integrations"]
+  const mobile = ["Android(Java and Kotlin)", "Flutter", "Ionic", "NativeScript"]
 
   return (<Section title="Core Skills">
     <div className="space-y-8">
       <SkillCard skills={backend} title={"Backend"}/>
       <SkillCard skills={frontend} title={"Frontend"}/>
+      <SkillCard skills={mobile} title={"Mobile"}/>
       <SkillCard skills={testing} title={"Testing & Quality"}/>
       <SkillCard skills={architecture} title={"Architecture & Practices"}/>
     </div>

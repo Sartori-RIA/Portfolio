@@ -1,3 +1,6 @@
 export * from './ExperienceSection'
 export * from './HeaderSection'
+export * from './RecommendationsSection'
+export * from './ProjecsSection'
+export * from './EducationsSection'
 export * from './SkillsSection'
