@@ -125,6 +125,7 @@ export function ExperienceSection() {
           "Worked on an ERP system using Spring Boot, Angular, and Kotlin",
           "Designed and implemented REST APIs",
           "Rewrote backend from JEE to Spring Boot and Kotlin",
+          "Rewrote mobile app from Java with no patterns to Kotlin, MVVM, Retrofit and Realm",
           "Reduced offline sync time from ~4 hours to 10–15 minutes",
         ]}
       />
