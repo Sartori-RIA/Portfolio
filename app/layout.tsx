@@ -4,7 +4,8 @@ import "./globals.css";
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import {config} from "@fortawesome/fontawesome-svg-core";
-import { Analytics } from '@vercel/analytics/next';
+import {Analytics} from '@vercel/analytics/next';
+import {SpeedInsights} from "@vercel/speed-insights/next";
 
 config.autoAddCss = false;
 
@@ -23,11 +24,11 @@ export const metadata: Metadata = {
   description: "Lucas Sartori - Portfolio",
   icons: {
     icon: [
-      { url: "/favicons/icon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicons/icon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicons/icon-48x48.png", sizes: "48x48", type: "image/png" },
-      { url: "/favicons/icon-256x256.png", sizes: "256x256", type: "image/png" },
-      { url: "/favicons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      {url: "/favicons/icon-16x16.png", sizes: "16x16", type: "image/png"},
+      {url: "/favicons/icon-32x32.png", sizes: "32x32", type: "image/png"},
+      {url: "/favicons/icon-48x48.png", sizes: "48x48", type: "image/png"},
+      {url: "/favicons/icon-256x256.png", sizes: "256x256", type: "image/png"},
+      {url: "/favicons/icon-512x512.png", sizes: "512x512", type: "image/png"},
     ],
     apple: "/favicon-180x180.png",
   }
@@ -44,7 +45,8 @@ export default function RootLayout({
       className={`${roboto.className} antialiased`}
     >
     {children}
-    <Analytics />
+    <Analytics/>
+    <SpeedInsights/>
     </body>
     </html>
   );
