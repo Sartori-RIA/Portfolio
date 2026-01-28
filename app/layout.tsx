@@ -4,6 +4,7 @@ import "./globals.css";
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import {config} from "@fortawesome/fontawesome-svg-core";
+import { Analytics } from '@vercel/analytics/next';
 
 config.autoAddCss = false;
 
@@ -43,6 +44,7 @@ export default function RootLayout({
       className={`${roboto.className} antialiased`}
     >
     {children}
+    <Analytics />
     </body>
     </html>
   );
