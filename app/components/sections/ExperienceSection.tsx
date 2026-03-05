@@ -1,4 +1,6 @@
 import * as UI from "@/app/components/ui";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faTrophy} from "@fortawesome/free-solid-svg-icons";
 
 type ExperienceItem = {
   role: string;
@@ -7,10 +9,36 @@ type ExperienceItem = {
   period: string;
   location?: string;
   bullets: string[];
+  achievements?: string[];
 };
 
+function Achievements({achievements}: { achievements: string[] }) {
+  return (
+    <div className="mt-6 border-t border-zinc-800 pt-4">
+      <div className="flex items-center gap-2 mb-3">
+        <i className="fa-solid fa-trophy text-amber-400"></i>
+        <h4 className=" font-semibold text-zinc-200">
+          Key Achievements
+        </h4>
+      </div>
 
-function ExperienceCard({role, company, companyLink, period, location, bullets}: ExperienceItem) {
+      <ul className="mt-3 list-disc list-inside text-gray-300 space-y-1">
+        {achievements.map((item, index) => (
+          <li
+            key={index}
+            className="flex items-start gap-3 text-zinc-300"
+          >
+            <FontAwesomeIcon icon={faTrophy} />
+            <span className="leading-relaxed">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+
+function ExperienceCard({role, company, companyLink, period, location, bullets, achievements}: ExperienceItem) {
   return (
     <UI.Card>
       <UI.CardContent>
@@ -23,6 +51,7 @@ function ExperienceCard({role, company, companyLink, period, location, bullets}:
             <li key={idx}>{item}</li>
           ))}
         </ul>
+        {achievements && <Achievements achievements={ achievements } />}
       </UI.CardContent>
     </UI.Card>
   );
@@ -38,11 +67,18 @@ export function ExperienceSection() {
         location="Remote · USA"
         period="Sep 2024 – Present"
         bullets={[
-          "Working on Tripleseat, a large-scale event and restaurant management platform",
+          "Working on TripleSeat, a large-scale event and restaurant management platform",
           "Developing new features, improving performance, and maintaining complex integrations",
           "Applied prompt engineering and generative AI techniques to build reliable workflows that automated tasks, improved information retrieval, and accelerated development processes.",
           "Contributing to Inspect Point, a 10+ year multi-tenant legacy system",
           "Designing REST APIs, addressing technical debt, and improving system reliability",
+        ]}
+        achievements={[
+          "At TripleSeat - Redesign the prompts from >4k Lines to ~450 lines, following Prompt Modular Architecture, reducing company cost with Gemini in 60% with better results",
+          "At TripleSeat - Redesign the duplication detection service, improving the system reliability and performance from between 4 minutes to more than 20 resulting in timeout, to between 1 to 4 minutes",
+          "At InspectPoint - Created the CI giving the team the possibility to create RSpecs, before no one in the team was able to do it, and directly responsible to increase the coverage to more than 50%",
+          "At InspectPoint - Responsible for the backend APIs, making the integrations for internal systems and third-party",
+          "At InspectPoint - Several performance and security issues fixed like: N+1, find_each, MassAssigment, SqlInjection"
         ]}
       />
 
@@ -55,10 +91,15 @@ export function ExperienceSection() {
         period="Nov 2021 – Mar 2024"
         bullets={[
           "Worked on a high-volume e-commerce fraud detection platform",
-          "Increased test coverage from 2% to over 40%",
           "Rebuilt merchant dashboards and reporting systems",
           "Rebuilt customer document upload workflows",
           "Improved security by integrating Brakeman and fixing vulnerabilities",
+        ]}
+        achievements={[
+          "Responsible for recreate the Dashboard",
+          "Increased test coverage from 2% to over 40%",
+          "Made de integrations with several Third-part platforms like BigCommerce, AdobeCommerce",
+          "Several performance and security issues fixed like: N+1, find_each, MassAssigment, SqlInjection"
         ]}
       />
 
@@ -67,25 +108,18 @@ export function ExperienceSection() {
         companyLink={"https://www.linkedin.com/company/twygoficial/"}
         company="Grupo EUAX"
         location="Remote · Brazil"
-        period="Jun 2021 – Nov 2021"
+        period="Dec 2020 – Nov 2021"
         bullets={[
           "Led development of Twygo, a 10+ year online education platform",
           "Acted as Ruby on Rails specialist and technical reference",
           "Led a team of 4 developers",
           "Balanced feature delivery with refactoring and system stability",
-        ]}
-      />
-
-      <ExperienceCard
-        role="Senior Software Engineer (Ruby on Rails)"
-        company="Grupo EUAX"
-        companyLink={"https://www.linkedin.com/company/twygoficial/"}
-        location="Remote · Brazil"
-        period="Dec 2020 – Jun 2021"
-        bullets={[
           "Developed and maintained features for the Twygo platform",
           "Assisted the team with product and technical questions",
           "Worked extensively with legacy codebases",
+        ]}
+        achievements={[
+          "Several performance and security issues fixed like N+1, find_each, MassAssigment, SqlInjection",
         ]}
       />
 
@@ -99,6 +133,9 @@ export function ExperienceSection() {
           "Worked on multiple projects using Angular, Vue.js, Rails, and Node.js",
           "Developed SPAs and backend APIs",
           "Participated in mobile projects using Flutter, NativeScript, and Kotlin",
+        ]}
+        achievements={[
+          "Delivered several projects for Startups, NGOs, factories and many other category of companies"
         ]}
       />
 
@@ -126,7 +163,10 @@ export function ExperienceSection() {
           "Designed and implemented REST APIs",
           "Rewrote backend from JEE to Spring Boot and Kotlin",
           "Rewrote mobile app from Java with no patterns to Kotlin, MVVM, Retrofit and Realm",
-          "Reduced offline sync time from ~4 hours to 10–15 minutes",
+        ]}
+        achievements={[
+          "Improved several performance issues like N+1 in the entire system",
+          "Reduced offline sync time from ~4 hours to 10–15 minutes"
         ]}
       />
     </UI.Section>
