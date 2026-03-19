@@ -67,13 +67,16 @@ export function ExperienceSection() {
         location="Remote · USA"
         period="Sep 2024 – Present"
         bullets={[
-          "Working on TripleSeat, a large-scale event and restaurant management platform",
+          "Working on Syncro, a platform providing integrated business management solutions for service providers.",
+          "Focused in develop the new integration with ElasticSearch and karafka, introducing an event-driven indexing pipeline that significantly reduced database load and improved search performance and relevance.",
+          "Contributing on TripleSeat, a large-scale event and restaurant management platform",
           "Developing new features, improving performance, and maintaining complex integrations",
           "Applied prompt engineering and generative AI techniques to build reliable workflows that automated tasks, improved information retrieval, and accelerated development processes.",
           "Contributing to Inspect Point, a 10+ year multi-tenant legacy system",
           "Designing REST APIs, addressing technical debt, and improving system reliability",
         ]}
         achievements={[
+          "At Syncro - Implemented automated testing with RSpec with CI pipelines, enforcing a minimum of 80% test coverage, with most repositories exceeding 90%, increasing code reliability and deployment safety.",
           "At TripleSeat - Redesign the prompts from >4k Lines to ~450 lines, following Prompt Modular Architecture, reducing company cost with Gemini in 60% with better results",
           "At TripleSeat - Redesign the duplication detection service, improving the system reliability and performance from between 4 minutes to more than 20 resulting in timeout, to between 1 to 4 minutes",
           "At InspectPoint - Created the CI giving the team the possibility to create RSpecs, before no one in the team was able to do it, and directly responsible to increase the coverage to more than 50%",
