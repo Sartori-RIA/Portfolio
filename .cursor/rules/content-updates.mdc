@@ -1,0 +1,21 @@
+---
+description: How to update portfolio content (experience, skills, certifications)
+globs: content/**,app/components/sections/**
+alwaysApply: false
+---
+
+# Content updates
+
+When editing portfolio content:
+
+1. Change data in `content/*.ts`, not in section components.
+2. Experience entries: newest job first in `content/experience.ts`.
+3. Each experience needs: `role`, `company`, `companyLink`, `period`, `bullets`.
+4. Use `achievements` for measurable outcomes (coverage %, cost reduction, latency).
+5. Certifications go in `content/certifications.ts`.
+6. Header title and bio → `content/profile.ts` (`profile.title`, `profile.bio`).
+7. How I Work principles → `content/how-i-work.ts`.
+8. Blog articles → `content/articles/*.md` with frontmatter (`published: true` to go live).
+9. Blog production flag → `content/features.ts` (`enabledInProduction`).
+10. Blog index copy → `content/blog.ts`.
+11. See `docs/CONTENT.md` for full reference.

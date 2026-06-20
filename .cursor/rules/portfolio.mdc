@@ -1,0 +1,16 @@
+---
+description: Core conventions for the cookiecode.com.br portfolio
+alwaysApply: true
+---
+
+# Portfolio conventions
+
+- Content editable data → `content/`. Sections in `app/components/sections/` are presentational only.
+- UI primitives → `app/components/ui/`.
+- No new npm dependencies without explicit approval.
+- Static site only — no API routes, no server actions with side effects.
+- External links: `target="_blank"` + `rel="noopener noreferrer"`.
+- Images: use `next/image` through `Avatar` or add optimized `Image` usage.
+- Tailwind utility classes; avoid custom CSS unless necessary.
+- English content, outcome-oriented tone.
+- Run `yarn build` after substantive changes.
