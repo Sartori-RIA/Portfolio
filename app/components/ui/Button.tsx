@@ -1,11 +1,11 @@
-import {ReactNode} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faUpRightFromSquare} from "@fortawesome/free-solid-svg-icons";
+import {ReactNode} from "react";
 
 export function LinkButton({
-                             href,
-                             children,
-                           }: {
+  href,
+  children,
+}: {
   href: string;
   children: ReactNode;
 }) {
@@ -21,8 +21,15 @@ export function LinkButton({
   );
 }
 
-export function Link({href, text}: { href: string, text: string }) {
-  return (<a href={href} target={"_blank"}>
-    {text} <FontAwesomeIcon icon={faUpRightFromSquare}/>
-  </a>)
+export function Link({href, text}: { href: string; text: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-gray-200 transition"
+    >
+      {text} <FontAwesomeIcon icon={faUpRightFromSquare} className="text-xs"/>
+    </a>
+  );
 }
