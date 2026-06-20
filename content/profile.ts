@@ -21,4 +21,5 @@ export const site = {
   title: "Lucas Sartori — Senior Backend Engineer",
   description:
     "Portfolio of Lucas Sartori — Senior Backend Engineer specializing in Ruby on Rails, PostgreSQL, AWS, APIs, performance, scalability, and AI integrations.",
+  footer: "Based in Brazil · Open to remote and US relocation",
 };

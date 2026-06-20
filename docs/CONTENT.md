@@ -41,7 +41,7 @@ All editable portfolio content lives in `content/`. Components in `app/component
 
 ### Update header / SEO
 
-1. Edit `content/profile.ts` — `profile.title`, `profile.bio`, and `site` object
+1. Edit `content/profile.ts` — `profile.title`, `profile.bio`, `site` object (including `site.footer`)
 2. Metadata in `app/layout.tsx` reads from `site`
 
 ### Update How I Work

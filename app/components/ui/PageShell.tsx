@@ -1,4 +1,5 @@
 import {ReactNode} from "react";
+import {site} from "@/content/profile";
 
 export function PageShell({children}: { children: ReactNode }) {
   return (
@@ -13,7 +14,7 @@ export function PageShell({children}: { children: ReactNode }) {
 export function Footer() {
   return (
     <footer className="pt-12 border-t border-gray-800 text-gray-500 text-sm">
-      <p>Brazil · Open to remote opportunities</p>
+      <p>{site.footer}</p>
     </footer>
   );
 }
