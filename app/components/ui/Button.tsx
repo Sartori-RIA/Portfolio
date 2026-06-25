@@ -21,6 +21,17 @@ export function LinkButton({
   );
 }
 
+export function EngagementLink({href, text}: {href: string, text: string}) {
+  return (<a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:text-gray-200 transition font-medium text-amber-400/90"
+  >
+    {text} <FontAwesomeIcon icon={faUpRightFromSquare} className="text-xs"/>
+  </a>)
+}
+
 export function Link({href, text}: { href: string; text: string }) {
   return (
     <a

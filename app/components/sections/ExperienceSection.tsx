@@ -33,10 +33,10 @@ function Achievements({achievements}: { achievements: string[] }) {
   );
 }
 
-function Engagement({name, bullets, achievements}: ExperienceEngagement) {
+function Engagement({name, bullets, achievements, companyLink}: ExperienceEngagement) {
   return (
     <div className="mt-5 border-t border-zinc-800/60 pt-4 first:mt-0 first:border-t-0 first:pt-0">
-      <h4 className="font-medium text-amber-400/90">{name}</h4>
+      <UI.EngagementLink href={companyLink} text={name}/>
       <BulletList items={bullets}/>
       {achievements && <Achievements achievements={achievements}/>}
     </div>
@@ -44,16 +44,16 @@ function Engagement({name, bullets, achievements}: ExperienceEngagement) {
 }
 
 function ExperienceCard({
-  role,
-  company,
-  companyLink,
-  period,
-  location,
-  summary,
-  bullets,
-  achievements,
-  engagements,
-}: ExperienceItem) {
+                          role,
+                          company,
+                          companyLink,
+                          period,
+                          location,
+                          summary,
+                          bullets,
+                          achievements,
+                          engagements,
+                        }: ExperienceItem) {
   return (
     <UI.Card>
       <UI.CardContent>
