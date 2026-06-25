@@ -12,6 +12,7 @@ export const experience: ExperienceItem[] = [
     engagements: [
       {
         name: "Syncro",
+        companyLink: "https://syncrosecure.com/",
         bullets: [
           "Integrated business management platform for service providers.",
           "Built ElasticSearch + Karafka event-driven indexing pipeline, reducing database load and improving search performance.",
@@ -20,6 +21,7 @@ export const experience: ExperienceItem[] = [
       },
       {
         name: "TripleSeat",
+        companyLink: "https://tripleseat.com/",
         bullets: [
           "Large-scale event and restaurant management platform.",
           "Redesigned prompts from 4k+ lines to ~450 using modular architecture — 60% Gemini cost reduction with better results.",
@@ -29,6 +31,7 @@ export const experience: ExperienceItem[] = [
       },
       {
         name: "Inspect Point",
+        companyLink: "https://inspectpoint.com/",
         bullets: [
           "10+ year multi-tenant legacy system.",
           "Designed REST APIs and owned backend integrations (internal + third-party).",

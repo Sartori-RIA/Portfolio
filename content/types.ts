@@ -11,6 +11,7 @@ export type Profile = {
 
 export type ExperienceEngagement = {
   name: string;
+  companyLink: string;
   bullets: string[];
   achievements?: string[];
 };
