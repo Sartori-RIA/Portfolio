@@ -3,23 +3,25 @@ import type {Profile} from "./types";
 export const profile: Profile = {
   name: "Lucas Antonio Ramos Sartori",
   title:
-    "Senior Backend Engineer | Ruby on Rails | PostgreSQL | AWS | APIs, Performance & Scalability | AI Integrations",
+    "Senior Ruby on Rails Engineer | Backend Architecture | PostgreSQL | Performance & Reliability",
   bio:
-    "Senior Software Engineer with nearly 9 years of experience, focused on building, evolving, " +
-    "and scaling Ruby on Rails applications for U.S.-based and international companies. Strong " +
-    "background in legacy systems, multi-tenant architectures, APIs, AI-driven features, and " +
-    "long-term maintainability.",
+    "Senior Rails/backend engineer with 8+ years stabilizing and scaling mature SaaS systems — " +
+    "reliability, performance, test coverage, architecture, and production safety. I work with " +
+    "U.S.-based companies remotely from Brazil. Recent work includes event-driven search/indexing, " +
+    "legacy modernization, and AI workflows where they cut cost and latency.",
   avatar: {src: "/images/me.jpeg", alt: "Lucas Sartori"},
   links: {
     linkedin: "https://www.linkedin.com/in/lucas-antonio-ramos-sartori/",
     github: "https://github.com/Sartori-RIA",
+    email: "mailto:lucas.a.r.sartori@gmail.com",
   },
 };
 
 export const site = {
   url: "https://cookiecode.com.br",
-  title: "Lucas Sartori — Senior Backend Engineer",
+  title: "Lucas Sartori — Senior Ruby on Rails Engineer",
   description:
-    "Portfolio of Lucas Sartori — Senior Backend Engineer specializing in Ruby on Rails, PostgreSQL, AWS, APIs, performance, scalability, and AI integrations.",
-  footer: "Based in Brazil · Open to remote and US relocation",
+    "Senior Ruby on Rails engineer specializing in backend architecture, PostgreSQL, performance, and reliability for U.S. SaaS companies.",
+  footer:
+    "Based in Brazil · Open to senior remote roles with US companies. US-based roles when visa or relocation support is explicit.",
 };

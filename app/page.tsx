@@ -6,11 +6,11 @@ export default function Home() {
     <PageShell>
       <SECTIONS.HeaderSection/>
       <SECTIONS.ExperienceSection/>
+      <SECTIONS.ProjectsSection/>
+      <SECTIONS.SkillsSection/>
+      <SECTIONS.RecommendationsSection/>
       <SECTIONS.EducationsSection/>
       <SECTIONS.CertificationsSection/>
-      <SECTIONS.ProjectsSection/>
-      <SECTIONS.RecommendationsSection/>
-      <SECTIONS.SkillsSection/>
       <Footer/>
     </PageShell>
   );

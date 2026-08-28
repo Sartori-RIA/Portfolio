@@ -2,7 +2,7 @@ import type {ExperienceItem} from "./types";
 
 export const experience: ExperienceItem[] = [
   {
-    role: "Senior Backend Ruby Developer",
+    role: "Senior Backend Engineer",
     company: "Ballast Lane Applications",
     companyLink: "https://www.linkedin.com/company/ballast-lane-applications/",
     location: "Remote · USA",

@@ -1,6 +1,7 @@
 import * as UI from "@/app/components/ui";
 import {profile} from "@/content/profile";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faEnvelope} from "@fortawesome/free-solid-svg-icons";
 import {faGithub, faLinkedin} from "@fortawesome/free-brands-svg-icons";
 
 export function HeaderSection() {
@@ -17,6 +18,9 @@ export function HeaderSection() {
           </UI.LinkButton>
           <UI.LinkButton href={profile.links.github}>
             <FontAwesomeIcon icon={faGithub}/> GitHub
+          </UI.LinkButton>
+          <UI.LinkButton href={profile.links.email}>
+            <FontAwesomeIcon icon={faEnvelope}/> Email
           </UI.LinkButton>
         </div>
       </div>
