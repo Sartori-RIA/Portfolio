@@ -17,7 +17,10 @@ export const skills: { groups: SkillGroup[] } = {
       skills: [
         "AWS",
         "Docker",
+        "Redis",
         "Elasticsearch",
+        "Searchkick",
+        "OpenSearch",
         "Kafka / Karafka",
         "MySQL",
       ],

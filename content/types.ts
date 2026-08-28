@@ -6,6 +6,7 @@ export type Profile = {
   links: {
     linkedin: string;
     github: string;
+    email: string;
   };
 };
 

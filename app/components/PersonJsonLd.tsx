@@ -13,11 +13,11 @@ export function PersonJsonLd() {
     knowsAbout: [
       "Ruby on Rails",
       "PostgreSQL",
-      "AWS",
-      "REST APIs",
+      "Backend Architecture",
       "Performance Engineering",
-      "AI Integrations",
-      "Azure AI",
+      "Reliability",
+      "REST APIs",
+      "Elasticsearch",
     ],
   };
 
