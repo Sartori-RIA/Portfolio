@@ -19,10 +19,10 @@ export const projects: ProjectItem[] = [
     description: "NGO project to help the community with free, quality dental care.",
     techs: ["React", "NextJS", "TypeScript"],
   },
-  {
-    name: "Juntos Family",
-    href: "https://juntos-family.com",
-    description: "Celebrate together, even from afar. Invites, wishlists, and Secret Santa — simple, beautiful, and built for your phone.",
-    techs: ["Ruby on Rails", "PostgreSQL", "TailwindCSS"],
-  }
+  // {
+  //   name: "Juntos Family",
+  //   href: "https://juntos-family.com",
+  //   description: "Celebrate together, even from afar. Invites, wishlists, and Secret Santa — simple, beautiful, and built for your phone.",
+  //   techs: ["Ruby on Rails", "PostgreSQL", "TailwindCSS"],
+  // }
 ];
