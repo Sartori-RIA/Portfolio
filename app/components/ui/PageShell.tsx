@@ -13,7 +13,8 @@ export function PageShell({children}: { children: ReactNode }) {
 
 export function Footer() {
   return (
-    <footer className="pt-12 border-t border-gray-800 text-gray-500 text-sm">
+    <footer className="pt-12 border-t border-gray-800 text-gray-500 text-sm space-y-2">
+      <p>{site.brandNote}</p>
       <p>{site.footer}</p>
     </footer>
   );

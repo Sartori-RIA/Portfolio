@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import {site} from "@/content/profile";
 
 type LogoProps = {
   size?: number;
@@ -36,7 +37,12 @@ export function Logo({size = 28, showWordmark = true, src = "/logo.svg"}: LogoPr
 
 export function LogoLink({size = 28}: { size?: number }) {
   return (
-    <Link href="/" className="hover:opacity-90 transition">
+    <Link
+      href="/"
+      className="hover:opacity-90 transition"
+      title={site.logoTitle}
+      aria-label="CookieCode, Lucas Sartori's personal site"
+    >
       <Logo size={size}/>
     </Link>
   );

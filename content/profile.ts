@@ -24,4 +24,7 @@ export const site = {
     "Senior Ruby on Rails engineer specializing in backend architecture, PostgreSQL, performance, and reliability for U.S. SaaS companies.",
   footer:
     "Based in Brazil · Open to senior remote roles with US companies. US-based roles when visa or relocation support is explicit.",
+  brandNote: "CookieCode is my personal site — not a company.",
+  logoTitle:
+    "CookieCode — Lucas Sartori. Named for browser cookies, baked cookies, and code.",
 };
