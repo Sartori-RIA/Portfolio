@@ -5,7 +5,7 @@ export const profile: Profile = {
   title:
     "Senior Ruby on Rails Engineer | Backend Architecture | PostgreSQL | Performance & Reliability",
   bio:
-    "Senior Rails/backend engineer with 8+ years stabilizing and scaling mature SaaS systems — " +
+    "Senior Rails/backend engineer with 9+ years stabilizing and scaling mature SaaS systems — " +
     "reliability, performance, test coverage, architecture, and production safety. I work with " +
     "U.S.-based companies remotely from Brazil. Recent work includes event-driven search/indexing, " +
     "legacy modernization, and AI workflows where they cut cost and latency.",
