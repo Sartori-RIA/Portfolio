@@ -5,7 +5,7 @@ import type {Metadata} from "next";
 export const metadata: Metadata = {
   title: "How I Work",
   description:
-    "Principles Lucas Sartori follows when building software — ADRs, simple architectures, maintainability, AI-assisted delivery, and business outcomes.",
+    "Principles Lucas Sartori follows when building software — written decisions, simple architectures, maintainability, AI-assisted delivery, and verification of the real artifact.",
   alternates: {
     canonical: "/how-i-work",
   },
