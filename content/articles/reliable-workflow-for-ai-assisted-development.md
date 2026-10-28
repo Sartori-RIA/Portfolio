@@ -14,11 +14,11 @@ None of that is a prompting trick. The model saw a task, wrote code that type-ch
 
 The question this article examines: how do you make that more predictable without wrapping every one-line fix in a process?
 
-I do not have a controlled measurement of this workflow against ordinary assistant use. Where a study exists, I say what it measured. Where I am describing a practice, it is the practice, not a result.
-
 ## 1. Give the assistant durable project knowledge
 
-A root instruction file such as `AGENTS.md` is a place for facts the assistant would otherwise rediscover wrong. [The format itself](https://agents.md/) is plain Markdown. It has no required fields. The nearest file in the directory tree wins, and a direct instruction in the chat overrides the file. The project site says the filename appears in over 60,000 open-source repositories. That number is the site's own claim, not a finding that the files improve correctness.
+A root instruction file such as `AGENTS.md` is a place for facts the assistant would otherwise rediscover wrong. [The format itself](https://agents.md/) is plain Markdown, with no required fields. The project site says the filename appears in over 60,000 open-source repositories. That number is the site's own claim, not a finding that the files improve correctness.
+
+Precedence is not part of the format. The site's FAQ says the closest file to the edited path wins, and an explicit chat prompt overrides the file. That is the FAQ. Codex documents a different merge: it concatenates files from the project root downward, and a later file overrides an earlier one. [Cursor's docs](https://cursor.com/docs/rules), which are the ones I run, say nested `AGENTS.md` files are combined with their parents and the more specific file wins that conflict. Team rules, project rules, and user rules are separate layers, and the docs put project rules ahead of user rules. When this chat and the file disagree, I review the diff against the instruction I gave for the task. I do not assume the tool resolved the clash for me.
 
 What belongs in the root file is short:
 
@@ -63,7 +63,7 @@ Instructions rot. A file that still describes the abandoned frontend, or that do
 
 The root file is the standing context. The task message is the context for one change. They should not be copies of each other.
 
-A stock adjustment and a copy change do not need the same packet. For a new read of `stock_movements` in ubuteco, the packet that matters is the tenant rule, the role rule, the error shape, and the test directory. The search cluster, the cable server, and the currency ADR are noise on that task. Noise has a cost: the model spends steps on it, and a buried constraint is easier to miss. [Liu and colleagues](https://doi.org/10.1162/tacl_a_00638) showed, on question-answering and a synthetic retrieval task, that models use the start and end of a long prompt more reliably than the middle. That is not a Rails study. It is a reason to keep the task packet small and to put the invariant in a place the model will actually read.
+A stock adjustment and a copy change do not need the same packet. For a new read of `stock_movements` in ubuteco, the packet that matters is the tenant rule, the role rule, the error shape, and the test directory. The search cluster, the cable server, and the currency ADR are noise on that task. A buried constraint is easier to miss, so the packet stays small and the invariant sits where it will actually be read.
 
 [Anthropic’s engineering note of 29 September 2025](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) gives the same advice from the vendor side: keep the smallest set of high-signal tokens. Treat that as practitioner guidance, not as a trial on product teams.
 
@@ -95,7 +95,7 @@ That packet names the files to open, the behavior that must hold, and the work t
 
 A plan is worth writing when the change has an order, a dependency, or a check that is not obvious from the ticket. A null-check in one method does not need a plan. A new endpoint that touches authorization, a polymorphic product, and the public error contract does.
 
-The sequence is requirement, acceptance criteria, plan, change, verification. The plan is not a list of files for the assistant to edit. Each step ends when a check passes.
+The sequence is requirement, acceptance criteria, plan, change, verification. Each step ends when a check passes.
 
 This is an illustrative plan for the read endpoint above. I have not shipped that endpoint. `stock_movements` already exist, written by `Inventory::RecordMovement`, and the manual adjustment route is `PATCH /api/v1/{beers|wines|drinks|foods}/:id/stock` for `ADMIN` and `CASH_REGISTER`. The plan uses those facts, including those roles, so the steps match the repository rather than a generic CRUD sketch.
 
@@ -130,11 +130,37 @@ For a one-line fix, the same discipline is the ticket plus the spec that should 
 
 ## 4. Use decision records to preserve a choice the code will not repeat for you
 
-An architecture decision record, in the form [Michael Nygard described in 2011](https://www.cognitect.com/blog/2011/11/15/documenting-architecture-decisions), is a short note: the context, the decision, the status, and the consequences. I have not found a controlled study that shows these notes make a coding assistant obey an architecture. Use one when the decision is easy to “improve” away.
+An architecture decision record, in the form [Michael Nygard described in 2011](https://www.cognitect.com/blog/2011/11/15/documenting-architecture-decisions), is a short note: the context, the decision, the status, and the consequences. Use one when the decision is easy to “improve” away. The note makes the closed choice visible. It does not, by itself, make an assistant follow it.
 
 ubuteco’s ADR 001 is that kind of decision. The product serves many restaurant organizations. The accepted design is one PostgreSQL schema, `organization_id` on tenant-owned tables, and `Current.organization` for the request. Schema-per-tenant was considered and rejected, because migrations and CI stay ordinary Rails, with the explicit cost that every query and ability must scope the tenant. A later reader, human or assistant, who proposes the Apartment gem is not filling a gap. They are reopening a closed decision. The ADR is what makes that visible. The model will not infer a rejection from the absence of a second schema.
 
-ADR 006 is the consequence the code hides. `Current` is `ActiveSupport::CurrentAttributes`, set in `SetCurrentTenant` and cleared after the request. Sidekiq has no tenant. Jobs either pass `organization_id` or set `Current` and call `Current.reset` in `ensure`. The pitfall file says agents assume `Current.organization` is simply available in background code. The ADR exists so the next job does not ship that assumption.
+ADR 006 is the consequence the code hides. `Current` is `ActiveSupport::CurrentAttributes`, set in `SetCurrentTenant` and cleared after the request. Sidekiq has no tenant. Jobs either pass `organization_id` or set `Current` and call `Current.reset` in `ensure`. The pitfall file says agents assume `Current.organization` is simply available in background code.
+
+`ReindexJob` is the implemented form of that rule. ADR 006 names it. A full-class reindex is refused. The organization path takes `organization_id`, assigns `Current.organization` from that id, and `Current.reset` runs in `ensure`. The spec calls `perform` without setting `Current` first, expects the reindex to use the id argument, and expects `Current.organization` to be nil afterward.
+
+The shape the pitfall list is there to stop reads the tenant from whatever the thread still holds:
+
+```ruby
+def perform(model_name)
+  model_name.constantize.reindex_for_organization(Current.organization.id)
+end
+```
+
+After the request that enqueued the job, `Current.organization` is nil, so this raises. If a previous job set `Current` and skipped `reset`, the same method would reindex that leftover tenant. The version in the repo does not do that:
+
+```ruby
+def perform(model_name, record_id = nil, organization_id = nil)
+  model = model_name.constantize
+  if organization_id.present?
+    Current.organization = Organization.find_by(id: organization_id)
+    model.reindex_for_organization(organization_id)
+  end
+ensure
+  Current.reset
+end
+```
+
+That block is shortened. The file also refuses a call with neither id, and the organization branch handles `Organization` itself. I am not quoting a production incident. I am quoting the assumption ADR 006 already wrote down, and the job and spec that lock the correction. A spec that only stubs `reindex`, and never checks the id or the reset, would let the first version through.
 
 A useful record has five parts, and only those:
 
@@ -148,9 +174,7 @@ Paste the record into the task when the change can violate it. Do not paste the 
 
 ## 5. Implement in slices a person can review
 
-Oversight is not the moment at the end where you skim a thousand-line diff and click merge. It is the decision, after each coherent slice, that the slice matches the step you asked for.
-
-On the stock-movements plan, that looks like this.
+On the stock-movements plan, a reviewable slice looks like this.
 
 1. Ask for the plan first if the assistant has not been given one. Correct the plan before any file changes. A wrong plan executed cleanly is still the wrong change.
 2. Implement step 1 only. The service and its spec. Review the diff for `organization_id` from params, for a `default_scope` that hides the tenant instead of an explicit scope, and for edits outside inventory.
@@ -159,39 +183,29 @@ On the stock-movements plan, that looks like this.
 5. Update the contract. Run the drift check.
 6. If a step reveals that movements are not indexed the way the plan assumed, stop. Revise the plan. Do not let the assistant “also” rewrite reindexing while it is in there.
 
-Unrelated refactoring is the usual way a small task becomes unreviewable. A drive-by rename, a new abstraction around `Current`, or a formatting pass on an untouched file hides the behavior change. The instruction is simple: do not edit files the step does not need. When the assistant does it anyway, revert that hunk and continue. Accepting it because the tests are green teaches the next session that the extra edit was part of the task.
-
 Keep the work on one branch, `feature/<slug>`, which is already the rule in that repo. Use a separate worktree when the assistant should not touch your working copy, and delete it when the spike is over.
 
-The assistant will state assumptions as facts. “All products are stockable.” “`Current` is set in jobs.” “404 leaks tenant existence, so return an empty list.” Each of those contradicts a written rule. The review is there to catch the sentence, not only the Ruby. If you cannot explain why the diff is shaped the way it is, you do not understand it well enough to merge it. That is the oversight. Approval of an unread patch is not.
+The assistant will state assumptions as facts. “All products are stockable.” “`Current` is set in jobs.” “404 leaks tenant existence, so return an empty list.” Each of those contradicts a written rule. The review is there to catch the sentence, not only the Ruby.
 
 ## 6. Verification is part of done
 
-“It compiles” and “the assistant reports success” are the same claim. Neither is done.
+On ubuteco_api the checks before a pull request are the ones `bin/ci` runs: RuboCop, RSpec, Brakeman, bundler-audit, `openapi:drift_check`, and `bin/plans_drift_check`. A cross-tenant example lives in `spec/security/cross_tenant/` and uses two organizations. A request spec that only ever authenticates a user from the factory’s default org will not fail an IDOR.
 
-On ubuteco_api the checks I expect before a pull request are the ones in the root file: RuboCop, RSpec, Brakeman, bundler-audit, and `openapi:drift_check` when the contract changes. `bin/ci` runs that set. A cross-tenant example lives in `spec/security/cross_tenant/` and uses two organizations. A request spec that only ever authenticates a user from the factory’s default org will not fail an IDOR.
+Tests the assistant writes are not the acceptance criteria you wrote first. If the model implements “return [] for another tenant” and then asserts `eq([])`, the test reproduces the bug. Write the example you care about before the implementation, or take it from a plan line the assistant did not author: another org’s product id returns 404, and the response body contains no foreign rows. A test that stubs the scope and asserts the stub was called does not test isolation.
 
-Tests the assistant writes are not the same thing as acceptance criteria you wrote first. If the model implements “return [] for another tenant” and then asserts `eq([])`, the test reproduces the bug. Write the example you care about before the implementation, or take it from a plan line the assistant did not author: another org’s product id returns 404, and the response body contains no foreign rows. When you do let the assistant add coverage, read the expectations. A test that stubs the scope and asserts the stub was called does not test isolation.
+Rails Capacity Lab is a mountable engine that still lives only on my machine. There is no public remote, so you cannot open the initializer or the specs. The decision I will state without asking you to trust a path is ADR-0020: the sample app does not store a throughput or capacity figure, because a number from one laptop would read as a result. Committing a k6 summary to “finish” the sample violates that decision. For behavior you can read, use [ubuteco_api](https://github.com/Sartori-RIA/ubuteco_api) and [Facebook Activity Cleaner](https://github.com/Sartori-RIA/facebook_activity_cleaner).
 
-For a migration, done includes a reversible change, the absence of a table rewrite you did not intend, and the rule that the assistant does not run `db:migrate` against a shared database unless you asked. For authorization, done includes the role that must be rejected, not only the role that must succeed. For a deletion tool, done includes the case the product must refuse.
+On the cleaner, `npm test` uses `tests/fixtures/activity-log.html`. A passing run that was achieved by adding a switch to turn protection off is a failed change. Look for `disableProtection`, `--no-respect-protection`, and any path that marks an activity deleted without an observation. Live `--execute` against a real account is not a test.
 
-Rails Capacity Lab is a mountable engine I am building for bounded load tests. It is not published. Its defaults are closed: the dashboard returns 403 until the host sets an authorization callback, load tests stay off, and production targets need a second flag. ADR-0020 records that the sample app does not store a throughput or capacity figure, because a number from one laptop would read as a result. An assistant that “finishes” the sample by committing a k6 summary has violated the decision, even though the JSON is well formed. The check is “no capacity number in the diff,” and a unit test will not invent that check for you.
-
-On Facebook Activity Cleaner, `npm test` is necessary and not sufficient. The suite uses `tests/fixtures/activity-log.html`. A passing run that was achieved by adding a switch to turn protection off is a failed change. The diff has to be read for `disableProtection`, `--no-respect-protection`, and any path that marks an activity deleted without an observation. Live `--execute` against a real account is not a test.
-
-CI is the same commands, on a clean machine, for the pull request. If it only runs on your laptop, you do not have a reproducible check. If it runs and you merge a red pipeline because the assistant said the failure is unrelated, you have switched the definition of done back to the assistant’s summary.
+If CI is red and the assistant says the failure is unrelated, done has moved back to the assistant’s summary.
 
 ## 7. Keep standing context true, and keep plans temporary
 
-Three kinds of writing get mixed together, and only one of them should be durable.
+Standing instructions and ADRs describe rules that are still in force. They change in the same commit as the code, or they are deleted. ubuteco keeps domain notes in `docs/context/` and decisions in `docs/decisions/`. The pitfall file is the log of agent mistakes worth telling the next session. A line that is no longer true is worse than no line.
 
-Standing instructions and ADRs describe rules that are still in force. They are updated in the commit that changes the rule, or they are deleted. ubuteco keeps domain notes in `docs/context/` and decisions in `docs/decisions/`. The pitfall file is the log of agent mistakes worth telling the next session. That file is useful only while each line is still true.
+Plans in `docs/plans/` are temporary. When the work ships, the plan is done. The mismatch the repo recorded is the plan index status disagreeing with the `Status:` header inside the plan file. `docs/context/common-ai-pitfalls.md` names that row, and `bin/plans_drift_check` is the remedy. `bin/ci` runs it. RSpec does not. I do not know whether the check reduces agent mistakes.
 
-Plans in `docs/plans/` are temporary. They have a status, checkboxes, and a definition of done. When the work ships, the plan is done. It is not a second architecture document. Leaving a finished plan’s half-updated checkboxes as if they were the API contract is how drift starts. The repo has `bin/plans_drift_check` because the plan header and the index were already getting out of sync.
-
-Discoveries that will matter later move out of the plan and into the durable place: a new invariant into the ADR or the root file, a repeated agent mistake into the pitfall list. A one-off workaround stays in the pull request. Not every change deserves a documentation edit. A copy fix does not get an ADR. A new tenant rule does.
-
-Duplicate sources of truth are the failure mode. If the root file, the ADR, and a comment in `Current` disagree, the assistant will follow one of them at random. Pick the code as the behavior, pick one document as the decision, and make the other a pointer.
+If the root file, the ADR, and a comment in `Current` disagree, the assistant will follow one of them. Pick the code as the behavior and one document as the decision.
 
 A structure that has stayed small enough to keep current:
 
@@ -206,7 +220,9 @@ Add a directory when a real split appears. Do not add a process document that te
 
 ## 8. Match the process to the risk
 
-The aim is enough structure for the risk you are taking. Maximum process is a tax on the changes that were never going to violate an invariant.
+The aim is enough structure for the risk you are taking. A one-line copy change in `config/locales` does not need ADR 001, a plan file, or a reread of the inventory note. Paste the string, the file, and the spec or screen that shows the old text. If that “typo” starts changing who can call the endpoint, it has left the small row. Stop and name the invariant before the assistant keeps going.
+
+Maximum process is a tax on the changes that were never going to violate an invariant.
 
 ```text
 Change            What you load                         Plan              Done
@@ -220,36 +236,32 @@ High risk         The ADR, the invariant, the threat    Staged steps      Specs,
 
 **Medium.** A feature across a few files that stays inside one boundary. The stock-movements read is this category: one resource, one tenant rule, one contract update. Load the inventory note and ADR 001, not the whole `docs/` tree. Write the short plan from section 3. Require the cross-tenant spec because the bug you care about is an IDOR, which a single-org request spec misses.
 
-**High risk.** Authentication, authorization, tenant isolation, payments, destructive deletion, and migrations that rewrite data. Load the ADR and the invariant in the prompt, not as optional reading. Stage the work. Run the security scanner you already have. Read the diff yourself before it merges. On the activity cleaner, this category includes any change to eligibility, confirmation phrases, or protection. On Rails Capacity Lab, it includes allowlists, production opt-in, and anything that would send source or secrets to a model. On ubuteco, it includes a change to `SetCurrentTenant`, abilities, or a job that touches tenant rows.
+**High risk.** Authentication, authorization, tenant isolation, payments, destructive deletion, and migrations that rewrite data. Load the ADR and the invariant in the prompt, not as optional reading. Stage the work. Run the security scanner you already have. Read the diff yourself before it merges. On the activity cleaner, this category includes any change to eligibility, confirmation phrases, or protection. On ubuteco, it includes a change to `SetCurrentTenant`, abilities, or a job that touches tenant rows.
 
-[Barke, James, and Polikarpova](https://doi.org/10.1145/3586030) watched 20 programmers using Copilot and described two modes: acceleration, when the person already knows the next step, and exploration, when they do not. The table matches that split. Acceleration, the small row, suffers when you make the assistant read a manual. Exploration and high-risk work suffer when you hand over a sentence and accept the first diff.
+[Barke, James, and Polikarpova](https://doi.org/10.1145/3586030) watched 20 programmers using Copilot and described two modes: acceleration, when the person already knows the next step, and exploration, when they do not. The distinction offers a useful way to think about the table: familiar, bounded work can benefit from a lighter process, while unfamiliar or high-risk work calls for more explicit constraints and review. That is my application of the distinction, not a result tested by the study.
 
 If you cannot name the invariant the change might break, you are not in the small row yet. Spend five minutes finding it. That is the process.
 
-## 9. What the evidence supports, and where it stops
+## 9. What research can tell you
 
-These studies do not measure the workflow above. They measured different tools, on different tasks, often with no human review. I am not going to pretend they sum to a productivity percentage for this practice.
+These studies did not measure the workflow in this article. They measured different tools, on different tasks, usually without the review loop in section 5. I have not run a controlled comparison of my own.
 
-**Code completion during ordinary or assigned work.** [Peng, Kalliamvakou, Cihon, and Demirer](https://arxiv.org/abs/2302.06590) asked freelancers in 2022 to build a JavaScript HTTP server. Ninety-five developers were randomized. The paper says thirty-five from both the Copilot group and the control group finished. Among those who finished, mean time was 71.17 minutes with Copilot and 160.89 without, 55.8% faster, with a 95% interval of 21% to 89%. The authors say they did not measure code quality. The task was a new program, not a change to a system you already run.
+Completion research does not point one way. A [controlled GitHub Copilot experiment](https://arxiv.org/abs/2302.06590), run in 2022 and reported in a 2023 preprint, found that people who finished a new JavaScript server were substantially faster. The authors did not measure code quality. That result is about those finishers and that task, not about development work in general. [Three company field experiments](https://doi.org/10.1287/mnsc.2025.00535) later found more completed weekly tasks where Copilot was used, with a wide error bar, and larger gains for less experienced developers. That treatment is inline completion during ordinary work. A [2022 lab study](https://doi.org/10.1145/3491101.3519665) found no significant gain in time or success, and most participants still preferred the tool. In early 2025, [experienced open-source maintainers](https://arxiv.org/abs/2507.09089) were slower with AI tools allowed, and they believed they had been faster. In February 2026 the [same group](https://metr.org/blog/2026-02-24-uplift-update/) said a later run is not a reliable update. Developers were declining tasks that disallowed AI, the pay was lower, and time was hard to record when several agents ran together. METR treats that run as a weak signal. It does not replace the early-2025 slowdown, and it is not a measurement of this workflow.
 
-[Cui, Demirer, Jaffe, Musolff, Peng, and Salz](https://doi.org/10.1287/mnsc.2025.00535), in Management Science on 27 February 2026, report three company field experiments, 4,867 developers, with randomized access to Copilot. Their preferred estimate is that usage raised completed weekly tasks by 26.08% (standard error 10.3%). The experiments are noisy one by one. Less experienced developers adopted the tool more and gained more. Several authors are at Microsoft Research. The treatment is completion inside normal work, not a repository agent following a plan.
+Security research is more consistent, and it is still not a 2026 agent on a mature codebase. In one [user study](https://doi.org/10.1145/3576915.3623157), people with an assistant wrote less secure solutions and were more likely to believe the code was secure. In another, a large share of [Copilot completions](https://doi.org/10.1109/SP46214.2022.9833571) for risky prompts were vulnerable. That is why the high-risk row includes a person reading the diff.
 
-[Vaithilingam, Zhang, and Glassman](https://doi.org/10.1145/3491101.3519665) found no significant gain in time or success among 24 participants, and 19 of them still preferred Copilot.
+Context-file research, all of it on autonomous agents, disagrees with itself. On small pull requests, [one preprint](https://arxiv.org/abs/2601.20404) found lower runtime and fewer output tokens when `AGENTS.md` was present, and did not score correctness. [Another](https://arxiv.org/abs/2602.11988), checked on 28 October 2026, found no general gain in task success and higher inference cost. Developer-written files beat model-generated ones, and were not a clear improvement on having no file. A repository overview did not help the agent find the right code. A [small workshop study](https://aclanthology.org/2026.realm-1.5.pdf) found no detectable correctness effect. A [rules preprint](https://arxiv.org/abs/2604.11088) saw bundles ahead of a no-rule baseline, random rules matching curated ones, and negative constraints looking better than style instructions when tested one at a time. The closest contrast against the no-rule baseline did not clear the usual significance line. I use that last result only as a reason to write the prohibition the code will not show. I do not use it as proof that an instruction file makes a model behave.
 
-**Experienced maintainers, early 2025.** [Becker, Rush, Barnes, and Rein](https://arxiv.org/abs/2507.09089) randomized 246 real issues across 16 maintainers. With early-2025 tools allowed, mostly Cursor and Claude 3.5 or 3.7 Sonnet, tasks took 19% longer. Beforehand the developers expected to be 24% faster. Afterward they still believed they had been 20% faster. On [24 February 2026](https://metr.org/blog/2026-02-24-uplift-update/) the same group said a follow-up was too biased to interpret, because people refused work that disallowed AI. That 19% belongs to that period and those maintainers.
+```text
+Evidence                         Supports                         Does not support
+-------------------------------  -------------------------------  ---------------------------------
+Completion, new or daily work    Speed and task counts vary       Quality, or this review loop
+Experienced maintainers, 2025    They were slower, and felt fast  A claim about current models
+Security labs                    Review the sensitive diff        Today's agent on a Rails app
+Context files, agents only       Mixed cost and weak correctness A human using a plan and an ADR
+```
 
-**Security.** [Perry, Srivastava, Kumar, and Boneh](https://doi.org/10.1145/3576915.3623157) found that 47 participants with `codex-davinci-002` wrote less secure solutions on four of five tasks and were more likely to believe the code was secure. [Pearce, Ahmad, Tan, Dolan-Gavitt, and Karri](https://doi.org/10.1109/SP46214.2022.9833571) prompted Copilot itself on 89 scenarios and judged about 40% of 1,689 programs vulnerable. One study is about people. The other is about completions. Both are reasons the high-risk row in section 8 includes a human reading the diff. Neither is a 2026 agent on a mature Rails app.
-
-**Instruction files for autonomous agents.** These papers disagree, and none of them includes the review loop in section 5.
-
-- [Lulla and colleagues](https://arxiv.org/abs/2601.20404), a preprint, ran Codex on 124 merged pull requests, each at most 100 lines and five files. With `AGENTS.md` present, median runtime fell 28.64% and median output tokens fell 16.58%. They did not evaluate correctness.
-- [Gloaguen and colleagues](https://arxiv.org/abs/2602.11988), a preprint I checked on 28 October 2026, did not find a general gain in task success from context files, and reported inference cost up by more than 20% on average. Developer-written files beat model-generated files by about 7% on average. Agents followed instructions. A repository overview did not help them locate the relevant code. An earlier PDF of the same work used different point estimates. Cite the current arXiv text.
-- [Khatri](https://aclanthology.org/2026.realm-1.5.pdf), a REALM 2026 workshop paper, found no detectable correctness effect of context injection across 17 tasks. The study is too small to rule out a modest effect. Failures looked like implementation mistakes, not missing facts a context file would have supplied.
-- [Zhang and colleagues](https://arxiv.org/abs/2604.11088), a preprint, saw rule bundles 7 to 14 percentage points above a no-rule baseline on SWE-bench Verified, but random rules matched curated rules, and the closest pairwise test was p = 0.077. Taken one at a time, negative constraints helped and positive style instructions hurt. That is suggestive for the “write the prohibition” advice in section 1. It is not a settled result, and it is not a study of interactive editing.
-
-**Perception.** [Ziegler and colleagues](https://doi.org/10.1145/3520312.3534864) found that suggestion acceptance rate best tracked how productive 2,631 Copilot users felt (correlation 0.24). [Forsgren and colleagues](https://queue.acm.org/detail.cfm?id=3454124) argued in 2021 that no single activity metric is productivity. Feeling fast is not a verified change.
-
-What nobody has published, that I can cite, is a controlled comparison of a human using an ordinary assistant session against the same human using a context packet, a plan, the relevant ADR, review checkpoints, and tests. Agent benchmarks do not establish that comparison. My repositories do not establish it either. They are where the rules came from, not a scoreboard.
+The useful limit is the last column. `AGENTS.md` and ADRs are how I keep a constraint visible. They are not a productivity result.
 
 ## 10. A workflow you can use on the next feature
 
@@ -276,30 +288,29 @@ The stock-movements packet in section 2 is the minimal brief. For a high-risk ch
 
 ## Closing
 
-Generating code is the easy part to see. A verified change is the acceptance criteria, the constraints the architecture already chose, a diff you can explain, and checks that were not written to flatter the implementation.
+A verified change is the acceptance criteria, the constraints the architecture already chose, a diff you can explain, and checks that were not written to flatter the implementation.
 
-How much of the workflow you use depends on the blast radius, on the tests you already have, and on the model in front of you. A small, local fix should stay small. Tenant isolation, deletion, payments, and migrations should not. Extra documents do not buy safety. Current documents, consulted for the task that can violate them, are the part that earns their keep.
+How much of the workflow you use depends on the blast radius, on the tests you already have, and on the model in front of you. A locale string stays a locale string. Tenant isolation, deletion, payments, and migrations get the invariant in the prompt and a person on the diff. A current note, opened because this change can break it, is the note that earns its place.
 
-I will keep writing the invariants down, planning the changes that can fail in more than one way, and treating a green transcript as a claim to verify. I will not pretend that ritual is a measured speedup. The studies we have point in different directions, and the workflow in this article is still an engineering judgment.
+I will keep writing those invariants down, planning the changes that can fail in more than one way, and reading the command output before I trust a green transcript.
 
 ## References
 
-- Peng, Kalliamvakou, Cihon, and Demirer. [The Impact of AI on Developer Productivity: Evidence from GitHub Copilot](https://arxiv.org/abs/2302.06590). arXiv:2302.06590, 2023.
-- Cui, Demirer, Jaffe, Musolff, Peng, and Salz. [The Effects of Generative AI on High-Skilled Work](https://doi.org/10.1287/mnsc.2025.00535). Management Science, 27 February 2026.
-- Becker, Rush, Barnes, and Rein. [Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity](https://arxiv.org/abs/2507.09089). arXiv:2507.09089, 2025. Follow-up note, [24 February 2026](https://metr.org/blog/2026-02-24-uplift-update/).
-- Vaithilingam, Zhang, and Glassman. [Expectation vs. Experience](https://doi.org/10.1145/3491101.3519665). CHI EA 2022.
-- Perry, Srivastava, Kumar, and Boneh. [Do Users Write More Insecure Code with AI Assistants?](https://doi.org/10.1145/3576915.3623157). CCS 2023.
-- Pearce, Ahmad, Tan, Dolan-Gavitt, and Karri. [Asleep at the Keyboard?](https://doi.org/10.1109/SP46214.2022.9833571). IEEE S&P 2022.
-- Lulla, Mohsenimofidi, Galster, Zhang, Baltes, and Treude. [On the Impact of AGENTS.md Files](https://arxiv.org/abs/2601.20404). arXiv:2601.20404, preprint, 2026.
-- Gloaguen, Mündler, Müller, Raychev, and Vechev. [Evaluating AGENTS.md](https://arxiv.org/abs/2602.11988). arXiv:2602.11988, preprint. Text checked 28 October 2026.
-- Khatri. [Do Context Files Help Coding Agents?](https://aclanthology.org/2026.realm-1.5.pdf). REALM 2026.
-- Zhang, Wang, Cui, Qiu, Li, Zhu, and He. [Do Agent Rules Shape or Distort?](https://arxiv.org/abs/2604.11088). arXiv:2604.11088, preprint.
-- Ziegler and colleagues. [Productivity Assessment of Neural Code Completion](https://doi.org/10.1145/3520312.3534864). MAPS 2022.
-- Forsgren, Storey, Maddila, Zimmermann, Houck, and Butler. [The SPACE of Developer Productivity](https://queue.acm.org/detail.cfm?id=3454124). ACM Queue, 2021.
-- Barke, James, and Polikarpova. [Grounded Copilot](https://doi.org/10.1145/3586030). OOPSLA 2023.
-- Liu, Lin, Hewitt, Paranjape, Bevilacqua, Petroni, and Liang. [Lost in the Middle](https://doi.org/10.1162/tacl_a_00638). TACL 2024.
-- Nygard. [Documenting Architecture Decisions](https://www.cognitect.com/blog/2011/11/15/documenting-architecture-decisions). 15 November 2011.
-- [AGENTS.md](https://agents.md/). Format description, checked 28 October 2026.
-- Anthropic. [Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents). 29 September 2025.
+The references below include peer-reviewed studies and preprints. Findings from preprints are identified as such; results should be interpreted in the context of each study's design and limitations.
+
+- Peng, Kalliamvakou, Cihon, and Demirer. [The Impact of AI on Developer Productivity: Evidence from GitHub Copilot](https://arxiv.org/abs/2302.06590). arXiv preprint, 2023. The experiment ran in 2022. People who finished a new JavaScript server were faster. Code quality was not measured.
+- Cui, Demirer, Jaffe, Musolff, Peng, and Salz. [The Effects of Generative AI on High-Skilled Work](https://doi.org/10.1287/mnsc.2025.00535). Management Science, 27 February 2026. More completed tasks where Copilot was used. The estimate is noisy, and less experienced developers gained more. Inline completion, not a planned agent workflow.
+- Vaithilingam, Zhang, and Glassman. [Expectation vs. Experience](https://doi.org/10.1145/3491101.3519665). CHI EA 2022. No significant gain in time or success. Most participants still preferred Copilot.
+- Becker, Rush, Barnes, and Rein. [Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity](https://arxiv.org/abs/2507.09089). arXiv preprint, 2025. Experienced maintainers were slower with early-2025 tools and believed they had been faster. A [February 2026 note](https://metr.org/blog/2026-02-24-uplift-update/) from the same group says a later run is too affected by selection to replace that result.
+- Perry, Srivastava, Kumar, and Boneh. [Do Users Write More Insecure Code with AI Assistants?](https://doi.org/10.1145/3576915.3623157). CCS 2023. Less secure solutions, and more confidence that the code was secure.
+- Pearce, Ahmad, Tan, Dolan-Gavitt, and Karri. [Asleep at the Keyboard?](https://doi.org/10.1109/SP46214.2022.9833571). IEEE S&P 2022. A large share of Copilot completions for risky prompts were judged vulnerable. Completions, not a user study.
+- Lulla, Mohsenimofidi, Galster, Zhang, Baltes, and Treude. [On the Impact of AGENTS.md Files on the Efficiency of AI Coding Agents](https://arxiv.org/abs/2601.20404). arXiv preprint, 2026. Found lower median runtime and output-token use in a limited set of pull requests; correctness was not evaluated.
+- Gloaguen, Mündler-Sasahara, Müller, Raychev, and Vechev. [Evaluating AGENTS.md](https://arxiv.org/abs/2602.11988). arXiv preprint. No general gain in task success, and higher inference cost. Developer-written files beat model-generated ones, without a clear gain over having no file. An earlier PDF of this preprint used different point estimates. Cite the arXiv version linked here, checked on 28 October 2026.
+- Khatri. [Do Context Files Help Coding Agents?](https://aclanthology.org/2026.realm-1.5.pdf). REALM 2026 workshop paper. No detectable correctness effect. Too small to rule out a modest one.
+- Zhang, Wang, Cui, Qiu, Li, Zhu, and He. [Do Agent Rules Shape or Distort?](https://arxiv.org/abs/2604.11088). arXiv preprint. Rule bundles beat a no-rule baseline, and random rules matched curated ones. The closest contrast against the baseline was not significant. Agent runs, not an interactive editing study.
+- Barke, James, and Polikarpova. [Grounded Copilot](https://doi.org/10.1145/3586030). OOPSLA 2023. Programmers using Copilot either accelerate work they already understand or explore work they do not.
+- Nygard. [Documenting Architecture Decisions](https://www.cognitect.com/blog/2011/11/15/documenting-architecture-decisions). 15 November 2011. A documentation practice, not an AI study.
+- [AGENTS.md](https://agents.md/). Format description, not an efficacy study. The site's adoption count is its own claim. Checked 28 October 2026.
+- Anthropic. [Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents). 29 September 2025. Vendor guidance, not an empirical study.
 
 An assistant helped draft this page and check those sources. I am responsible for what it claims.

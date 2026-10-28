@@ -5,6 +5,7 @@ import {isBlogEnabled} from "@/lib/features";
 import type {Metadata} from "next";
 import Link from "next/link";
 import {notFound} from "next/navigation";
+import * as SECTIONS from "@/app/components/sections";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -88,6 +89,7 @@ export default async function ArticlePage({params}: PageProps) {
 
       <ArticleContent content={article.content}/>
 
+      <SECTIONS.HeaderSection/>
       <UI.Footer/>
     </UI.PageShell>
   );
