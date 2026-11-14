@@ -14,7 +14,7 @@ When editing portfolio content:
 4. Use `achievements` for measurable outcomes (coverage %, cost reduction, latency).
 5. Certifications go in `content/certifications.ts`.
 6. Header title and bio → `content/profile.ts` (`profile.title`, `profile.bio`).
-7. How I Work principles → `content/how-i-work.ts`.
+7. How I Work principles → `content/how-i-work.ts`. How I Lead practices → `content/how-i-lead.ts`.
 8. Blog articles → `content/articles/*.md` with frontmatter (`published: true` to go live).
 9. Blog production flag → `content/features.ts` (`enabledInProduction`).
 10. Blog index copy → `content/blog.ts`.

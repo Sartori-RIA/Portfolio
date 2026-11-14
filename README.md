@@ -21,6 +21,7 @@ See [docs/CONTENT.md](docs/CONTENT.md) and [AGENTS.md](AGENTS.md) for details.
 - `/` — main portfolio
 - `/blog` — articles
 - `/how-i-work` — working principles
+- `/how-i-lead` — leadership practices
 
 ## Deploy
 

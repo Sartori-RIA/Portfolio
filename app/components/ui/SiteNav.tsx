@@ -6,6 +6,7 @@ const navLinks = [
   {href: "/", label: "Portfolio"},
   {href: "/blog", label: "Articles", feature: "blog" as const},
   {href: "/how-i-work", label: "How I Work"},
+  {href: "/how-i-lead", label: "How I Lead"},
 ];
 
 export function SiteNav() {
@@ -15,9 +16,9 @@ export function SiteNav() {
 
   return (
     <nav className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm sticky top-0 z-10">
-      <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-5xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
         <LogoLink size={60}/>
-        <ul className="flex gap-6 text-sm">
+        <ul className="flex flex-wrap justify-end gap-x-6 gap-y-2 text-sm">
           {links.map(({href, label}) => (
             <li key={href}>
               <Link

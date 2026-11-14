@@ -69,6 +69,11 @@ export type HowIWorkPrinciple = {
   description: string;
 };
 
+export type HowILeadPrinciple = {
+  title: string;
+  description: string;
+};
+
 export type ArticleFrontmatter = {
   title: string;
   description: string;

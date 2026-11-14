@@ -14,6 +14,7 @@ All editable portfolio content lives in `content/`. Components in `app/component
 | `content/recommendations.ts` | LinkedIn recommendations |
 | `content/skills.ts` | Skill tags by category |
 | `content/how-i-work.ts` | Principles for the /how-i-work page |
+| `content/how-i-lead.ts` | Practices for the /how-i-lead page |
 | `content/blog.ts` | Blog index title and description |
 | `content/features.ts` | Feature flags (`blog.enabledInProduction`) |
 | `content/articles/*.md` | Individual blog articles (Markdown) |
@@ -48,6 +49,12 @@ All editable portfolio content lives in `content/`. Components in `app/component
 
 1. Edit `content/how-i-work.ts`
 2. Each principle has `title` and `description`
+
+### Update How I Lead
+
+1. Edit `content/how-i-lead.ts`
+2. Each practice has `title` and `description`
+3. Keep the Grupo EUAX outcome in `howILeadIntro`. Do not add metrics that are not in the source notes.
 
 ### Enable blog in production
 

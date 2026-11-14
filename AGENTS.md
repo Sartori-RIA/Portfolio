@@ -28,6 +28,7 @@ app/
     sections/     # page sections (Experience, Skills, etc.)
     ui/           # reusable UI primitives
   how-i-work/     # /how-i-work page
+  how-i-lead/     # /how-i-lead page
   blog/           # /blog and /blog/[slug]
   layout.tsx      # root layout, metadata, nav
   page.tsx        # homepage
@@ -55,6 +56,7 @@ public/           # static assets (images, favicons)
 | `/blog` | Article listing |
 | `/blog/[slug]` | Individual article |
 | `/how-i-work` | Working principles |
+| `/how-i-lead` | Leadership practices |
 
 ## Deploy
 
