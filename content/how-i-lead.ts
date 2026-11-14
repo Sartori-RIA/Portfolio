@@ -27,6 +27,11 @@ export const howILeadPrinciples: HowILeadPrinciple[] = [
       "At Grupo EUAX I kept a Teams call open for my whole working day, available for meetings and pair programming. The team liked staying connected. We kept working together even when nobody needed help.",
   },
   {
+    title: "Drop everything to unblock",
+    description:
+      "When someone needed help, I stopped what I was doing and helped them get unblocked quickly. The team said that was what they liked.",
+  },
+  {
     title: "Review each other's code",
     description:
       "Everyone suggested improvements to each other's code. People reviewed one another, so review was a team habit.",
